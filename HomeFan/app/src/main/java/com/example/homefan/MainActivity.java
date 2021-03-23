@@ -1,5 +1,6 @@
 package com.example.homefan;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.animation.ObjectAnimator;
@@ -48,24 +49,14 @@ public class MainActivity extends AppCompatActivity {
         toggleButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(toggleButton.isChecked()){
-                    rotateAnimator.setDuration(SPEED[seekBar.getProgress()]);
-                    rotateAnimator.start();
-                }else{
-                    rotateAnimator.end();
-                }
+                rotateOn();
             }
         });
 
         switchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(switchButton.isChecked()){
-                    gd.setColors(new int[]{ Color.YELLOW , Color.TRANSPARENT });
-                    imageView.setBackground(gd);
-                }else{
-                    imageView.setBackgroundColor(Color.TRANSPARENT);
-                }
+                lightOn();
             }
         });
 
@@ -73,11 +64,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 //rotate the fan based on progress parameter
-                if(toggleButton.isChecked()){
-                    rotateAnimator.setDuration(SPEED[seekBar.getProgress()]);
-                    rotateAnimator.start();
-                }
-
+               rotateOn();
             }
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
@@ -90,6 +77,42 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+    }
+
+    private void lightOn(){
+        if(switchButton.isChecked()){
+            gd.setColors(new int[]{ Color.YELLOW , Color.TRANSPARENT });
+            imageView.setBackground(gd);
+        }else{
+            imageView.setBackgroundColor(Color.TRANSPARENT);
+        }
+    }
+
+    private void rotateOn(){
+        if(toggleButton.isChecked()){
+            rotateAnimator.setDuration(SPEED[seekBar.getProgress()]);
+            rotateAnimator.start();
+        }else{
+            rotateAnimator.end();
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean("ToggleButtonState", toggleButton.isChecked());
+        outState.putBoolean("SwitchButtonState", switchButton.isChecked());
+        outState.putInt("SeekBarValue", seekBar.getProgress());
+    }
+
+    @Override
+    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        toggleButton.setChecked(savedInstanceState.getBoolean("ToggleButtonState"));
+        switchButton.setChecked(savedInstanceState.getBoolean("SwitchButtonState"));
+        seekBar.setProgress(savedInstanceState.getInt("SeekBarValue"));
+        lightOn();
+        rotateOn();
     }
 
 
